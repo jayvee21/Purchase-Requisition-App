@@ -8,7 +8,12 @@
   },
   "devDependencies": {
     "@cap-js/sqlite": "^2.4",
-    "@sap/cds-dk": "^9"
+    "@sap/cds-dk": "^9",
+    "@cap-js/cds-types": "^0.18.0",
+    "@types/node": "^24.0.0",
+    "tsx": "^4",
+    "typescript": "^6.0.0",
+    "@cap-js/cds-typer": ">=0.1"
   },
   "scripts": {
     "start": "cds-serve"
@@ -20,5 +25,8 @@
         "auth": "xsuaa"
       }
     }
+  },
+  "imports": {
+    "#cds-models/*": "./@cds-models/*/index.js"
   }
 }
