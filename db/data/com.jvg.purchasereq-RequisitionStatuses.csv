@@ -1,0 +1,8 @@
+code;name;descr;criticality
+Draft;Draft;Requisition is being drafted;0
+Submitted;Submitted;Awaiting manager approval;2
+Approved;Approved;Approved by manager;3
+Rejected;Rejected;Rejected by manager;1
+Processing;Processing;Being processed by procurement;2
+Completed;Completed;Requisition fulfilled;3
+Cancelled;Cancelled;Requisition cancelled;1
