@@ -22,6 +22,7 @@ entity PurchaseRequisitions : cuid, managed {
     submittedAt : Timestamp;
     totalAmount : Decimal(15, 2) default 0;
     currency    : Currency;
+    rejectionReason : String(1000);
     items       : Composition of many Items
                       on items.parent = $self;
     attachments : Composition of many Attachments

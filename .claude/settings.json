@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git push *)",
+      "Bash(gh pr create --base main --head feat/project-configuration --title 'Add TypeScript support' --body ' *)",
+      "Bash(command -v gh)",
+      "Bash(gh auth *)",
+      "Bash(npx --no-install tsc --noEmit)",
+      "Bash(npx --no-install cds compile srv)"
+    ]
+  }
+}
