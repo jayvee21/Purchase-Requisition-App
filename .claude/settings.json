@@ -10,7 +10,8 @@
       "Bash(node -e \"console.log\\(JSON.stringify\\(require\\('./package.json'\\).cds, null, 2\\)\\)\")",
       "Bash(npx --no-install cds env requires.auth --profile development)",
       "Bash(npx --no-install cds compile srv/purchase-requisition-service.cds --to json)",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(python3 -c \"import json;m=json.load\\(open\\('app/purchase-requisitions/webapp/manifest.json'\\)\\);print\\('id:',m['sap.app']['id']\\);print\\('dataSources:',list\\(m['sap.app'].get\\('dataSources',{}\\).keys\\(\\)\\)\\);import json as j;print\\('targets:',j.dumps\\(m.get\\('sap.ui5',{}\\).get\\('routing',{}\\).get\\('targets',{}\\),indent=1\\)[:1500]\\)\")"
     ]
   }
 }
