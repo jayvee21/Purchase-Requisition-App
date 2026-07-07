@@ -1,0 +1,1 @@
+using PurchaseRequisitionService as service from '../../srv/purchase-requisition-service';
