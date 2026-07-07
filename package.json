@@ -23,6 +23,17 @@
     "requires": {
       "[production]": {
         "auth": "xsuaa"
+      },
+      "[development]": {
+        "auth": {
+          "kind": "mocked",
+          "users": {
+            "emp" : { "password": "pwd", "roles": ["Employee"] },
+            "mgr" : { "password": "pwd", "roles": ["Manager"]},
+            "proc" : { "password": "pwd", "roles": ["Procurement"]},
+            "admin" : { "password": "pwd", "roles": ["Admin"]}
+          }
+        }
       }
     }
   },

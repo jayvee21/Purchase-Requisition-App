@@ -6,7 +6,11 @@
       "Bash(command -v gh)",
       "Bash(gh auth *)",
       "Bash(npx --no-install tsc --noEmit)",
-      "Bash(npx --no-install cds compile srv)"
+      "Bash(npx --no-install cds compile srv)",
+      "Bash(node -e \"console.log\\(JSON.stringify\\(require\\('./package.json'\\).cds, null, 2\\)\\)\")",
+      "Bash(npx --no-install cds env requires.auth --profile development)",
+      "Bash(npx --no-install cds compile srv/purchase-requisition-service.cds --to json)",
+      "Bash(node -e ' *)"
     ]
   }
 }

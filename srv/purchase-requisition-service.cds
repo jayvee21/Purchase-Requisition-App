@@ -4,26 +4,22 @@ service PurchaseRequisitionService @(path:'/purchase-requisitions') {
     // Transactional root - draft-enabled at the service, not the db
     @odata.draft.enabled
     @restrict: [
-        { grant: 'READ', to: ['Employee', 'Manager', 'Procurement', 'Admin'] },
-        { grant: ['CREATE', 'UPDATE', 'DELETE'], to: ['Employee', 'Admin'] }
+        { grant: 'READ',   to: ['Employee','Manager','Procurement','Admin'] },
+        { grant: ['CREATE','UPDATE','DELETE'], to: ['Employee','Admin'] },
+        // --- bound actions: grant is the action NAME ---
+        { grant: 'submit',   to: 'Employee' },
+        { grant: 'approve',  to: 'Manager' },
+        { grant: 'decline',  to: 'Manager' },
+        { grant: 'cancel',   to: ['Employee','Admin'] },
+        { grant: 'process',  to: ['Procurement','Admin'] },
+        { grant: 'complete', to: ['Procurement','Admin'] }
     ]
     entity PurchaseRequisitions as projection on db.PurchaseRequisitions actions {
-        @(requires: 'Employee')
         action submit() returns PurchaseRequisitions;
-
-        @(requires:'Manager')
         action approve() returns PurchaseRequisitions;
-
-        @(requires:'Manager')
         action decline( reason: String @mandatory ) returns PurchaseRequisitions;
-
-        @(requires: ['Employee', 'Admin'])
         action cancel() returns PurchaseRequisitions;
-
-        @(requires: ['Procurement', 'Admin'])
         action process() returns PurchaseRequisitions;
-
-        @(requires: ['Procurement','Admin'])
         action complete() returns PurchaseRequisitions;
 
     };

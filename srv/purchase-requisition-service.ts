@@ -4,6 +4,10 @@ export default class PurchaseRequisitionService extends cds.ApplicationService {
     init() {
         const { PurchaseRequisitions: PR } = this.entities;
 
+        this.before('*', '*', req =>
+        console.log('AUTH>', req.event, 'user=', req.user.id, 'roles=', req.user.roles));
+
+
         // ---- State machine: guard the "when", then transition ----
         this.on('submit', PR, async (req) => {
             const pr = await SELECT.one.from(req.subject).columns('status_code');

@@ -1,0 +1,51 @@
+@host = http://localhost:4004
+@svc  = {{host}}/purchase-requisitions
+@emp = Authorization: Basic ZW1wOnB3ZA==
+@mgr = Authorization: Basic bWdyOnB3ZA==
+@proc = Authorization: Basic cHJvYzpwd2Q=
+@admin = Authorization: Basic YWRtaW46cHdk
+
+### 1. Create a DRAFT (note IsActiveEntity=false is implied on POST to the collection)
+# @name createDraft
+POST {{svc}}/PurchaseRequisitions
+Content-Type: application/json
+{{emp}}
+
+{
+    "title": "Laptops for new hires",
+    "description": "Q3 onboarding",
+    "currency_code": "EUR"
+}
+
+### capture the draft key for the response
+@prId = {{createDraft.response.body.ID}}
+
+
+### 2. Add an Item to the draft (child of the draft)
+POST {{svc}}/PurchaseRequisitions(ID={{prId}},IsActiveEntity=false)/items
+Content-Type: application/json
+{{emp}}
+
+{ "quantity": 3, "unitPrice": 1200.00, "currency_code": "EUR" }
+
+### 3. Activate the draft (draftActivate = the "Save")
+POST {{svc}}/PurchaseRequisitions(ID={{prId}}, IsActiveEntity=false)/PurchaseRequisitionService.draftActivate
+{{emp}}
+
+
+### 4. Bound action: submit (on the ACTIVE instance)
+POST {{svc}}/PurchaseRequisitions(ID={{prId}}, IsActiveEntity=true)/PurchaseRequisitionService.submit
+Content-Type: application/json
+{{emp}}
+
+### 5. Manager approves (different role → different auth header)
+POST {{svc}}/PurchaseRequisitions(ID={{prId}},IsActiveEntity=true)/PurchaseRequisitionService.approve
+Content-Type: application/json
+{{mgr}}
+
+### 6. Decline requires a parameter (mandatory reason)
+POST {{svc}}/PurchaseRequisitions(ID={{prId}},IsActiveEntity=true)/PurchaseRequisitionService.decline
+Content-Type: application/json
+{{mgr}}
+
+{ "reason": "Budget exceeded for this quarter" }
