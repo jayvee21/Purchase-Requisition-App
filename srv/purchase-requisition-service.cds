@@ -14,6 +14,7 @@ service PurchaseRequisitionService @(path:'/purchase-requisitions') {
         { grant: 'process',  to: ['Procurement','Admin'] },
         { grant: 'complete', to: ['Procurement','Admin'] }
     ]
+    @cds.redirection.target
     entity PurchaseRequisitions as projection on db.PurchaseRequisitions actions {
         action submit() returns PurchaseRequisitions;
         action approve() returns PurchaseRequisitions;
@@ -23,6 +24,11 @@ service PurchaseRequisitionService @(path:'/purchase-requisitions') {
         action complete() returns PurchaseRequisitions;
 
     };
+
+    @readonly 
+    entity Requestors as select  from db.PurchaseRequisitions distinct{
+        key requester as ID
+    } where requester is not null;
 
     // Owned children travel with the compositionl project them for typed accss
     entity Items as projection on db.Items;

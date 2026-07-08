@@ -13,6 +13,17 @@ annotate srv.PurchaseRequisitions with {
     status          @title: 'Status';
 }
 
+// Value help so "Requested By" is a searchable picker over known requesters
+annotate srv.PurchaseRequisitions with {
+    requester
+        @Common.ValueList: {
+            CollectionPath: 'Requestors',
+            Parameters: [
+                { $Type: 'Common.ValueListParameterInOut', LocalDataProperty: requester, ValueListProperty: 'ID' }
+            ]
+        }
+};
+
 
 //──────────────────────────────────────────────────────────
 // LIST REPORT — filter bar + table
