@@ -4,23 +4,41 @@ service PurchaseRequisitionService @(path:'/purchase-requisitions') {
     // Transactional root - draft-enabled at the service, not the db
     @odata.draft.enabled
     @restrict: [
-        { grant: 'READ',   to: ['Employee','Manager','Procurement','Admin'] },
-        { grant: ['CREATE','UPDATE','DELETE'], to: ['Employee','Admin'] },
-        // --- bound actions: grant is the action NAME ---
-        { grant: 'submit',   to: 'Employee' },
-        { grant: 'approve',  to: 'Manager' },
-        { grant: 'decline',  to: 'Manager' },
-        { grant: 'cancel',   to: ['Employee','Admin'] },
-        { grant: 'process',  to: ['Procurement','Admin'] },
-        { grant: 'complete', to: ['Procurement','Admin'] }
+        { grant: 'READ',   to: ['Manager','Procurement','Admin'] },
+        { grant: 'READ',   to: 'Employee', where: 'createdBy = $user' },
+        
+        { grant: 'CREATE', to: ['Employee', 'Admin'] },
+        { grant: ['UPDATE', 'DELETE'], to: 'Employee', where: 'createdBy = $user' },
+        { grant: ['UPDATE','DELETE'], to: 'Admin' },
+
+        // Ownership applies to lifecycle actions too
+        { grant: 'submit', to: 'Employee', where: 'createdBy = $user' },
+        { grant: 'cancel', to: 'Employee', where: 'createdBy = $user' },
+        { grant: 'cancel', to: 'Admin' },
+
+        { grant: 'approve', to: 'Manager' },
+        { grant:  'decline',to: 'Manager' },
+        { grant: 'process', to: ['Procurement', 'Admin'] },
+        { grant: 'complete', to: ['Procurement', 'Admin'] }
     ]
     @cds.redirection.target
     entity PurchaseRequisitions as projection on db.PurchaseRequisitions actions {
+        @Core.OperationAvailable: ($self.status.code = 'Draft')
         action submit() returns PurchaseRequisitions;
+
+        @Core.OperationAvailable: ($self.status.code = 'Submitted')
         action approve() returns PurchaseRequisitions;
+
+        @Core.OperationAvailable: ($self.status.code = 'Submitted')
         action decline( reason: String @mandatory ) returns PurchaseRequisitions;
+
+        @Core.OperationAvailable: ($self.status.code = 'Draft' or $self.status.code = 'Submitted')
         action cancel() returns PurchaseRequisitions;
+
+        @Core.OperationAvailable: ($self.status.code = 'Approved')
         action process() returns PurchaseRequisitions;
+
+        @Core.OperationAvailable: ($self.status.code = 'Proessing')
         action complete() returns PurchaseRequisitions;
 
     };
