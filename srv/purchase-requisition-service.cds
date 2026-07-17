@@ -38,7 +38,7 @@ service PurchaseRequisitionService @(path:'/purchase-requisitions') {
         @Core.OperationAvailable: ($self.status.code = 'Approved')
         action process() returns PurchaseRequisitions;
 
-        @Core.OperationAvailable: ($self.status.code = 'Proessing')
+        @Core.OperationAvailable: ($self.status.code = 'Processing')
         action complete() returns PurchaseRequisitions;
 
     };

@@ -154,3 +154,10 @@ annotate srv.Items with @(
         TargetProperties: [ 'parent/totalAmount']
     }
 );
+
+annotate srv.PurchaseRequisitions with @(
+    Common.SideEffects #itemsChanged: {
+        SourceProperties: [ 'items' ],
+        TargetProperties: [ totalAmount ]
+    }
+);

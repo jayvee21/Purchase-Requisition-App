@@ -1,12 +1,58 @@
 import cds from '@sap/cds';
+import { PurchaseRequisition, PurchaseRequisitions as PR, Items, Products } from '#cds-models/PurchaseRequisitionService';
 
 export default class PurchaseRequisitionService extends cds.ApplicationService {
     init() {
-        const { PurchaseRequisitions: PR } = this.entities;
+
+
+
+        // --- Drafttime: keep item amount and parent total live ----
+        const recalcParentTotal = async (parentID: string) => {
+            const items = await SELECT.from(Items.drafts)
+                .columns('amount')
+                .where({ parent_ID: parentID });
+            const total = items.reduce( (sum, i) => sum + (Number(i.amount) || 0), 0 );
+            await UPDATE(PR.drafts, parentID).with({ totalAmount: total });
+        }
 
         this.before('*', '*', req =>
         console.log('AUTH>', req.event, 'user=', req.user.id, 'roles=', req.user.roles));
 
+        this.before('UPDATE', Items.drafts, async (req) => {
+            // product picked → default price & currency (only if not set manually)
+            if (req.data.product_ID) {
+                const p = await SELECT.one.from(Products, req.data.product_ID)
+                          .columns('price', 'currency_code');
+                if (p) {
+                    req.data.unitPrice ??= p.price;
+                    req.data.currency_code ??= p.currency_code;
+                }
+            }
+
+            // merge incoming patch with stored values, recompute line amount
+            if ('quantity' in req.data || 'unitPrice' in req.data || 'product_ID' in req.data) {
+                const old = await SELECT.one.from(req.subject).columns('quantity', 'unitPrice');
+                const qty = req.data.quantity ?? old?.quantity ?? 0;
+                const price = req.data.unitPrice ?? old?.unitPrice ?? 0;
+                req.data.amount = Number(qty) * Number(price);
+            }
+        });
+
+        this.after('UPDATE', Items.drafts, async (_, req)=> {
+            const item = await SELECT.one.from(req.subject).columns('parent_ID');
+            if (item?.parent_ID) await recalcParentTotal(item.parent_ID);
+        });
+
+        // deletion: capture the parent before the row disappears 
+        this.before('DELETE', Items.drafts, async (req) => {
+            const item = await SELECT.one.from(req.subject).columns('parent_ID');
+            (req as any)._parentID = item?.parent_ID;
+        });
+
+        this.after('DELETE', Items.drafts, async (_, req) => {
+            const parentID = (req as any)._parentID;
+            if (parentID) await recalcParentTotal(parentID);
+        })
         
         this.before('CREATE', PR, async (req) => {
             if (!req.data.requester) req.data.requester = req.user.id;
@@ -33,7 +79,7 @@ export default class PurchaseRequisitionService extends cds.ApplicationService {
             return SELECT.one.from(req.subject);
         });
 
-        this.on('decline', PR, async (req) => {
+        this.on(PurchaseRequisition.actions.decline, PR.name, async (req) => {
             const { reason } = req.data;
             const pr = await SELECT.one.from(req.subject).columns('status_code');
             if (pr?.status_code !== 'Submitted')
