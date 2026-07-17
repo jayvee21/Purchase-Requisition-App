@@ -84,7 +84,10 @@ export default class PurchaseRequisitionService extends cds.ApplicationService {
             const pr = await SELECT.one.from(req.subject).columns('status_code');
             if (pr?.status_code !== 'Submitted')
                 return req.error(400, `Cannot approve a requisition in status '${pr?.status_code}'.`);
-            await UPDATE(req.subject).with({ status_code: 'Approved'});
+            const { ID } = req.params.at(-1) as { ID : string };
+            await UPDATE(DbPR, ID).with({
+                status_code: 'Approved',
+            });
             return SELECT.one.from(req.subject);
         });
 
@@ -93,7 +96,8 @@ export default class PurchaseRequisitionService extends cds.ApplicationService {
             const pr = await SELECT.one.from(req.subject).columns('status_code');
             if (pr?.status_code !== 'Submitted')
                 return req.error(400, `Cannot decline a requisition in status '${pr?.status_code}'.`);
-            await UPDATE(req.subject).with({ status_code: 'Rejected', rejectionReason: reason });
+            const { ID } = req.params.at(-1) as { ID : string };
+            await UPDATE(DbPR, ID).with({ status_code: 'Rejected', rejectionReason: reason });
             return SELECT.one.from(req.subject);
         });
 
@@ -101,7 +105,8 @@ export default class PurchaseRequisitionService extends cds.ApplicationService {
             const pr = await SELECT.one.from(req.subject).columns('status_code');
             if ( !['Draft', 'Submitted'].includes(pr?.status_code) )
                 return req.error(400, 'Only a draft or submitted requisition can be cancelled.');
-            await UPDATE(req.subject).with({ status_code: 'Cancelled' });
+            const { ID } = req.params.at(-1) as { ID : string };
+            await UPDATE(DbPR, ID).with({ status_code: 'Cancelled' });
             return SELECT.one.from(req.subject);
         });
 
@@ -121,7 +126,8 @@ export default class PurchaseRequisitionService extends cds.ApplicationService {
             const pr = await SELECT.one.from(req.subject).columns('status_code');
             if (pr?.status_code !== 'Approved') 
                 return req.error(400, `Cannot process a requisition in status '${pr?.status_code}'.`);
-            await UPDATE(req.subject).with({ status_code: 'Processing' });
+            const { ID } = req.params.at(-1) as { ID : string };
+            await UPDATE(DbPR, ID).with({ status_code: 'Processing' });
             return SELECT.one.from(req.subject);
         });
 
@@ -129,7 +135,8 @@ export default class PurchaseRequisitionService extends cds.ApplicationService {
             const pr = await SELECT.one.from(req.subject).columns('status_code');
             if (pr?.status_code !== 'Processing')
                 return req.error(400, `Cannot complete a requisition in status '${pr?.status_code}'.`);
-            await UPDATE(req.subject).with({ status_code: 'Completed'});
+            const { ID } = req.params.at(-1) as { ID : string };
+            await UPDATE(DbPR, ID).with({ status_code: 'Completed'});
             return SELECT.one.from(req.subject);
         });
 
