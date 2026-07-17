@@ -7,6 +7,9 @@ using {
     sap.common.CodeList
 } from '@sap/cds/common';
 
+using { Attachments } from '@cap-js/attachments';
+
+
 // ---- Status as a code list (localizable, value-help ready) ----
 entity RequisitionStatuses : CodeList {
     key code        : String(12);
@@ -25,27 +28,20 @@ entity PurchaseRequisitions : cuid, managed {
     rejectionReason : String(1000);
     items       : Composition of many Items
                       on items.parent = $self;
-    attachments : Composition of many Attachments
-                      on attachments.parent = $self;
+    attachments : Composition of many Attachments;
 }
 
 // ---- Owned line items -----
 entity Items : cuid, managed {
     parent    : Association to PurchaseRequisitions not null;
     product   : Association to Products;
-    quantity  : Decimal(13, 3) not null default 1;
+    quantity  : Decimal(13, 3) not null default 1 @assert.range: [(0), _];
     unitPrice : Decimal(15, 2);
     amount    : Decimal(15, 2);
     currency  : Currency;
 }
 
-// ---- Owned attachments -----
-entity Attachments : cuid, managed {
-    parent   : Association to PurchaseRequisitions not null;
-    fileName : String(255);
-    mimeType : String(100);
-    content  : LargeBinary @Core.MediaType: mimeType;
-}
+
 
 // ---- Reference / master data (value-help sources) ----
 entity Suppliers : cuid, managed {

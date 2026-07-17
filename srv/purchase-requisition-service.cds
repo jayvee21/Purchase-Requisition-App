@@ -23,7 +23,12 @@ service PurchaseRequisitionService @(path:'/purchase-requisitions') {
     ]
     @cds.redirection.target
     entity PurchaseRequisitions as projection on db.PurchaseRequisitions actions {
-        @Core.OperationAvailable: ($self.status.code = 'Draft')
+        @Core.OperationAvailable: { $edmJson: { $And: [
+            { $Path: 'in/IsActiveEntity' },
+            { $Eq: [ { $Path: 'in/status_code' }, 'Draft' ]}
+        ]}
+
+        }
         action submit() returns PurchaseRequisitions;
 
         @Core.OperationAvailable: ($self.status.code = 'Submitted')
@@ -55,7 +60,6 @@ service PurchaseRequisitionService @(path:'/purchase-requisitions') {
         { grant: '*', to: 'Employee', where: 'parent.createdBy = $user' }
     ]
     entity Items as projection on db.Items;
-    entity Attachments as projection on db.Attachments;
 
     // Master data - ready-only value-help resources
     @readonly entity Suppliers as projection on db.Suppliers;

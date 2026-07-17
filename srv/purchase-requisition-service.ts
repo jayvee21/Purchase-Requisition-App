@@ -63,6 +63,12 @@ export default class PurchaseRequisitionService extends cds.ApplicationService {
             const pr = await SELECT.one.from(req.subject).columns('status_code');
             if (pr?.status_code !== 'Draft')
                 return req.error(400, 'Only a draft requisition can be submitted.');
+            
+            const { ID } = req.params.at(-1) as { ID : string };
+            const row = await SELECT.one.from(Items).columns('count(*) as n').where({ parent_ID: ID });
+            if (!(row as any)?.n) 
+                return req.error(400, 'Add atleast one item before submitting', 'items');
+
             await UPDATE(req.subject).with({
                 status_code: 'Submitted',
                 submittedAt: new Date().toISOString()
