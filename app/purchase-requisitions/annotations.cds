@@ -7,6 +7,7 @@ using PurchaseRequisitionService as srv from '../../srv/purchase-requisition-ser
 annotate srv.PurchaseRequisitions with {
     title           @title: 'Title';
     requester       @title: 'Requested By';
+    description     @title: 'Description';
     totalAmount     @title: 'Total Amount' @Measures.ISOCurrency: currency_code;
     submittedAt     @title: 'Submitted At';
     rejectionReason @title: 'Rejection Reason';
@@ -122,9 +123,9 @@ annotate srv.PurchaseRequisitions with @(
 //──────────────────────────────────────────────────────────
 annotate srv.Items with @UI.LineItem: [
     { $Type: 'UI.DataField', Value: product_ID, Label: 'Product' },
-    { $Type: 'UI.DataField', Value: quantity },
-    { $Type: 'UI.DataField', Value: unitPrice },
-    { $Type: 'UI.DataField', Value: amount }
+    { $Type: 'UI.DataField', Value: quantity, Label: 'Quantity' },
+    { $Type: 'UI.DataField', Value: unitPrice, Label: 'Unit Price' },
+    { $Type: 'UI.DataField', Value: amount, Label: 'Amount'  }
 ];
 
 annotate srv.Items with {
@@ -146,3 +147,10 @@ annotate srv.Items with {
             ]    
     }
 };
+
+annotate srv.Items with @(
+    Common.SideEffects #recalc: {
+        SourceProperties: [ quantity, unitPrice ],
+        TargetProperties: [ 'parent/totalAmount']
+    }
+);
