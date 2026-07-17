@@ -157,7 +157,7 @@ annotate srv.Items with @(
 
 annotate srv.PurchaseRequisitions with @(
     Common.SideEffects #itemsChanged: {
-        SourceProperties: [ 'items' ],
+        SourceEntities: [ items ],
         TargetProperties: [ totalAmount ]
     }
 );

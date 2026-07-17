@@ -48,7 +48,12 @@ service PurchaseRequisitionService @(path:'/purchase-requisitions') {
         key requester as ID
     } where requester is not null;
 
-    // Owned children travel with the compositionl project them for typed accss
+    // Owned children travel with the compositional project them for typed access
+    @restrict: [
+        { grant: 'READ', to: ['Manager', 'Procurement', 'Admin'] },
+        { grant: '*', to: 'Admin' },
+        { grant: '*', to: 'Employee', where: 'parent.createdBy = $user' }
+    ]
     entity Items as projection on db.Items;
     entity Attachments as projection on db.Attachments;
 

@@ -104,6 +104,14 @@ export default class PurchaseRequisitionService extends cds.ApplicationService {
                 item.amount = (Number(item.quantity) || 0) * (Number(item.unitPrice) || 0);
                 total += item.amount;
             }
+            for (const item of pr.items ?? []) {
+                if (!item.product_ID)
+                    return req.error(400, 'Every item needs a product.', 'items');
+                if (!(Number(item.quantity) > 0))
+                    return req.error(400, 'Quantity must be greater than zero.', 'items');
+                item.amount = (Number(item.quantity) || 0) * (Number(item.unitPrice) || 0);
+                total += item.amount;
+            }
             pr.totalAmount = total;
         });
 

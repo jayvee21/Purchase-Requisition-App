@@ -1,3 +1,3 @@
-ID;title;description;status_code;requester;submittedAt;totalAmount;currency_code
-dd000001-0000-0000-0000-000000000001;Laptops and monitors for new hires;Onboarding hardware for Q3 hires;Submitted;employee1;2026-07-01T09:00:00Z;3000.00;USD
-dd000002-0000-0000-0000-000000000002;Office furniture and supplies;Chairs and paper for the west wing;Approved;employee2;2026-06-15T14:30:00Z;1500.00;USD
+ID;title;description;status_code;requester;submittedAt;totalAmount;currency_code;createdBy
+dd000001-0000-0000-0000-000000000001;Laptops and monitors for new hires;Onboarding hardware for Q3 hires;Submitted;employee1;2026-07-01T09:00:00Z;3000.00;USD;emp2
+dd000002-0000-0000-0000-000000000002;Office furniture and supplies;Chairs and paper for the west wing;Approved;employee2;2026-06-15T14:30:00Z;1500.00;USD;emp
