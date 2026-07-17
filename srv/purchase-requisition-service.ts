@@ -1,5 +1,6 @@
 import cds from '@sap/cds';
 import { PurchaseRequisition, PurchaseRequisitions as PR, Items, Products } from '#cds-models/PurchaseRequisitionService';
+import { PurchaseRequisitions as DbPR } from '#cds-models/com/jvg/purchasereq';
 
 export default class PurchaseRequisitionService extends cds.ApplicationService {
     init() {
@@ -9,16 +10,17 @@ export default class PurchaseRequisitionService extends cds.ApplicationService {
         // --- Drafttime: keep item amount and parent total live ----
         const recalcParentTotal = async (parentID: string) => {
             const items = await SELECT.from(Items.drafts)
-                .columns('amount')
+                .columns('amount','currency_code')
                 .where({ parent_ID: parentID });
             const total = items.reduce( (sum, i) => sum + (Number(i.amount) || 0), 0 );
-            await UPDATE(PR.drafts, parentID).with({ totalAmount: total });
+            const currency_code = items.find(i => i.currency_code)?.currency_code ?? null;
+            await UPDATE(PR.drafts, parentID).with({ totalAmount: total, currency_code });
         }
 
         this.before('*', '*', req =>
         console.log('AUTH>', req.event, 'user=', req.user.id, 'roles=', req.user.roles));
 
-        this.before('UPDATE', Items.drafts, async (req) => {
+        this.before(['CREATE','UPDATE'], Items.drafts, async (req) => {
             // product picked → default price & currency (only if not set manually)
             if (req.data.product_ID) {
                 const p = await SELECT.one.from(Products, req.data.product_ID)
@@ -38,9 +40,10 @@ export default class PurchaseRequisitionService extends cds.ApplicationService {
             }
         });
 
-        this.after('UPDATE', Items.drafts, async (_, req)=> {
-            const item = await SELECT.one.from(req.subject).columns('parent_ID');
-            if (item?.parent_ID) await recalcParentTotal(item.parent_ID);
+        this.after(['CREATE','UPDATE'], Items.drafts, async (_, req)=> {
+            const parentID = req.data.parent_ID
+                ?? (await SELECT.one.from(req.subject).columns('parent_ID'))?.parent_ID;
+            if (parentID) await recalcParentTotal(parentID);
         });
 
         // deletion: capture the parent before the row disappears 
@@ -69,7 +72,7 @@ export default class PurchaseRequisitionService extends cds.ApplicationService {
             if (!(row as any)?.n) 
                 return req.error(400, 'Add at least one item before submitting.', 'items');
 
-            await UPDATE(req.subject).with({
+            await UPDATE(DbPR, ID).with({
                 status_code: 'Submitted',
                 submittedAt: new Date().toISOString()
             });
@@ -111,6 +114,7 @@ export default class PurchaseRequisitionService extends cds.ApplicationService {
                 total += item.amount;
             }
             pr.totalAmount = total;
+            pr.currency_code = pr.items?.find(i => i.currency_code)?.currency_code ?? null;
         });
 
         this.on('process', PR, async (req) => {

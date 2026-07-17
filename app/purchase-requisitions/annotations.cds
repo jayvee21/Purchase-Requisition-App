@@ -14,6 +14,19 @@ annotate srv.PurchaseRequisitions with {
     status          @title: 'Status';
 }
 
+annotate PurchaseRequisitionService.PurchaseRequisitions with {
+    status              @readonly;
+    requester           @readonly;
+    totalAmount         @readonly;
+    submittedAt         @readonly;
+    rejectionReason     @readonly;
+    currency            @readonly;
+}
+
+annotate PurchaseRequisitionService.Items with {
+    amount      @readonly;
+}
+
 // Value help so "Requested By" is a searchable picker over known requesters
 annotate srv.PurchaseRequisitions with {
     requester
@@ -149,9 +162,14 @@ annotate srv.Items with {
 };
 
 annotate srv.Items with @(
-    Common.SideEffects #recalc: {
-        SourceProperties: [ quantity, unitPrice ],
-        TargetProperties: [ 'parent/totalAmount']
+    Common.SideEffects #productPicked: {
+        SourceProperties: [ product_ID ],
+        TargetProperties: [ 'unitPrice', 'currency_code', 'amount', 'parent/totalAmount' ]
+    },
+    // quantity or price editing → amount and header total change
+    Common.SideEffects #lineRecalc: {
+        SourceProperties: [ 'quantity', 'unitPrice' ],
+        TargetProperties: [ 'amount', 'parent/totalAmount' ]
     }
 );
 
