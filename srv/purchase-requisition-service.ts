@@ -67,7 +67,7 @@ export default class PurchaseRequisitionService extends cds.ApplicationService {
             const { ID } = req.params.at(-1) as { ID : string };
             const row = await SELECT.one.from(Items).columns('count(*) as n').where({ parent_ID: ID });
             if (!(row as any)?.n) 
-                return req.error(400, 'Add atleast one item before submitting', 'items');
+                return req.error(400, 'Add at least one item before submitting.', 'items');
 
             await UPDATE(req.subject).with({
                 status_code: 'Submitted',
@@ -107,14 +107,6 @@ export default class PurchaseRequisitionService extends cds.ApplicationService {
             const pr = req.data;
             let total = 0;
             for (const item of pr.items ?? []) {
-                item.amount = (Number(item.quantity) || 0) * (Number(item.unitPrice) || 0);
-                total += item.amount;
-            }
-            for (const item of pr.items ?? []) {
-                if (!item.product_ID)
-                    return req.error(400, 'Every item needs a product.', 'items');
-                if (!(Number(item.quantity) > 0))
-                    return req.error(400, 'Quantity must be greater than zero.', 'items');
                 item.amount = (Number(item.quantity) || 0) * (Number(item.unitPrice) || 0);
                 total += item.amount;
             }

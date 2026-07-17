@@ -68,10 +68,6 @@
             }
           }
         }
-      },
-      "attachments": {
-        "maxFileSizeMB": 10,
-        "allowedMimeTypes": ["application/pdf", "image/png", "image/jpeg"]
       }
 
     }

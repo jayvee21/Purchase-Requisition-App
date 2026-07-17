@@ -24,26 +24,48 @@ service PurchaseRequisitionService @(path:'/purchase-requisitions') {
     @cds.redirection.target
     entity PurchaseRequisitions as projection on db.PurchaseRequisitions actions {
         @Core.OperationAvailable: { $edmJson: { $And: [
-            { $Path: 'in/IsActiveEntity' },
-            { $Eq: [ { $Path: 'in/status_code' }, 'Draft' ]}
-        ]}
-
+                { $Path: 'in/IsActiveEntity' },
+                { $Eq: [ { $Path: 'in/status_code' }, 'Draft' ]}
+            ]}
         }
         action submit() returns PurchaseRequisitions;
 
-        @Core.OperationAvailable: ($self.status.code = 'Submitted')
+        @Core.OperationAvailable: { $edmJson: { $And: [
+                { $Path: 'in/IsActiveEntity' },
+                { $Eq: [ { $Path: 'in/status_code' }, 'Submitted' ]}
+            ]}
+        }
         action approve() returns PurchaseRequisitions;
 
-        @Core.OperationAvailable: ($self.status.code = 'Submitted')
+        @Core.OperationAvailable: { $edmJson: { $And: [
+                { $Path: 'in/IsActiveEntity' },
+                { $Eq: [ { $Path: 'in/status_code' }, 'Submitted' ]}
+            ]}
+        }
         action decline( reason: String @mandatory ) returns PurchaseRequisitions;
 
-        @Core.OperationAvailable: ($self.status.code = 'Draft' or $self.status.code = 'Submitted')
+        @Core.OperationAvailable: { $edmJson: { $And: [
+                { $Path: 'in/IsActiveEntity' },
+                { $Or: [
+                    { $Eq: [ { $Path: 'in/status_code' }, 'Draft' ]},
+                    { $Eq: [ { $Path: 'in/status_code' }, 'Submitted' ]}
+                ]}
+            ]}
+        }
         action cancel() returns PurchaseRequisitions;
 
-        @Core.OperationAvailable: ($self.status.code = 'Approved')
+        @Core.OperationAvailable: { $edmJson: { $And: [
+                { $Path: 'in/IsActiveEntity' },
+                { $Eq: [ { $Path: 'in/status_code' }, 'Approved' ]}
+            ]}
+        }
         action process() returns PurchaseRequisitions;
 
-        @Core.OperationAvailable: ($self.status.code = 'Processing')
+        @Core.OperationAvailable: { $edmJson: { $And: [
+                { $Path: 'in/IsActiveEntity' },
+                { $Eq: [ { $Path: 'in/status_code' }, 'Processing' ]}
+            ]}
+        }
         action complete() returns PurchaseRequisitions;
 
     };

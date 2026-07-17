@@ -31,10 +31,16 @@ entity PurchaseRequisitions : cuid, managed {
     attachments : Composition of many Attachments;
 }
 
+
+annotate PurchaseRequisitions.attachments with {
+    content @Validation.Maximum        : '10MB'
+            @Core.AcceptableMediaTypes : ['application/pdf', 'image/png', 'image/jpeg'];
+}
+
 // ---- Owned line items -----
 entity Items : cuid, managed {
     parent    : Association to PurchaseRequisitions not null;
-    product   : Association to Products;
+    product   : Association to Products @mandatory;
     quantity  : Decimal(13, 3) not null default 1 @assert.range: [(0), _];
     unitPrice : Decimal(15, 2);
     amount    : Decimal(15, 2);
